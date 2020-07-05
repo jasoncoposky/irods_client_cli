@@ -110,18 +110,23 @@ auto load_cli_command_plugins(const po::variables_map& vm) -> cli_command_map_ty
 
         if (std::strlen(env.irodsPluginHome) > 0) {
             lib_dir = env.irodsPluginHome;
-            lib_dir /= "cli";
         }
         else {
             lib_dir = irods::get_irods_default_plugin_directory();
         }
+
+        lib_dir /= "cli";
     }
 
     for (auto&& e : fs::directory_iterator{lib_dir}) {
         if (is_shared_library(e)) {
-            namespace dll = boost::dll;
-            auto cli_impl = dll::import<irods::cli::command>(e.path(), "cli_impl", dll::load_mode::append_decorations);
-            map.insert_or_assign(cli_impl->name(), cli_impl);
+            try {
+                namespace dll = boost::dll;
+                auto cli_impl = dll::import<irods::cli::command>(e.path(), "cli_impl", dll::load_mode::append_decorations);
+                map.insert_or_assign(cli_impl->name(), cli_impl);
+            }
+            catch(...) {
+            }
         }
     }
 
