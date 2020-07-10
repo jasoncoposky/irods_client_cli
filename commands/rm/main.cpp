@@ -125,10 +125,12 @@ irods rm [options] fully_qualified_logical_path
 
             std::string progress{};
 
+            auto progress_handler = progress_flag ? print_progress : [](const std::string&) {};
+
             auto cli = ia::client{};
             auto rep = cli(conn,
                            exit_flag,
-                           print_progress,
+                           progress_handler,
                            {{"logical_path", logical_path},
                             {"unregister",   unregister},
                             {"no_trash",     no_trash},
